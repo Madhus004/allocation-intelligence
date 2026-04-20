@@ -2,7 +2,7 @@ from datetime import date, datetime, timezone
 
 from sqlmodel import Session, delete
 
-from app.db import engine
+from app.db import engine, create_db_and_tables
 from app.models import (
     ItemMaster,
     NodeMaster,
@@ -15,8 +15,9 @@ from app.models import (
 
 
 def seed_data() -> None:
+    create_db_and_tables()
+
     with Session(engine) as session:
-        # Clear existing data
         session.exec(delete(WeatherRiskByNode))
         session.exec(delete(ShippingCostByNodeZone))
         session.exec(delete(ReplenishmentSchedule))
@@ -25,7 +26,6 @@ def seed_data() -> None:
         session.exec(delete(NodeMaster))
         session.exec(delete(ItemMaster))
 
-        # Items
         items = [
             ItemMaster(
                 item_id="SKU1001",
@@ -56,7 +56,6 @@ def seed_data() -> None:
             ),
         ]
 
-        # Nodes
         nodes = [
             NodeMaster(
                 node_id="STORE_A",
@@ -90,63 +89,51 @@ def seed_data() -> None:
             ),
         ]
 
-        # Inventory
         inventory = [
             InventoryByNode(item_id="SKU1001", node_id="STORE_A", on_hand_qty=3, available_qty=2, protection_qty=1),
             InventoryByNode(item_id="SKU1002", node_id="STORE_A", on_hand_qty=4, available_qty=3, protection_qty=1),
             InventoryByNode(item_id="SKU1003", node_id="STORE_A", on_hand_qty=2, available_qty=1, protection_qty=1),
-
             InventoryByNode(item_id="SKU1001", node_id="STORE_B", on_hand_qty=20, available_qty=18, protection_qty=2),
             InventoryByNode(item_id="SKU1002", node_id="STORE_B", on_hand_qty=12, available_qty=10, protection_qty=2),
             InventoryByNode(item_id="SKU1003", node_id="STORE_B", on_hand_qty=8, available_qty=7, protection_qty=1),
-
             InventoryByNode(item_id="SKU1001", node_id="DC_1", on_hand_qty=500, available_qty=480, protection_qty=0),
             InventoryByNode(item_id="SKU1002", node_id="DC_1", on_hand_qty=350, available_qty=330, protection_qty=0),
             InventoryByNode(item_id="SKU1003", node_id="DC_1", on_hand_qty=250, available_qty=245, protection_qty=0),
         ]
 
-        # Velocity
         velocities = [
             ItemVelocityByNode(item_id="SKU1001", node_id="STORE_A", weekly_velocity=9.0, seasonality_factor=1.2),
             ItemVelocityByNode(item_id="SKU1002", node_id="STORE_A", weekly_velocity=7.5, seasonality_factor=1.1),
             ItemVelocityByNode(item_id="SKU1003", node_id="STORE_A", weekly_velocity=6.0, seasonality_factor=1.0),
-
             ItemVelocityByNode(item_id="SKU1001", node_id="STORE_B", weekly_velocity=3.0, seasonality_factor=1.0),
             ItemVelocityByNode(item_id="SKU1002", node_id="STORE_B", weekly_velocity=4.0, seasonality_factor=1.0),
             ItemVelocityByNode(item_id="SKU1003", node_id="STORE_B", weekly_velocity=2.5, seasonality_factor=1.0),
-
             ItemVelocityByNode(item_id="SKU1001", node_id="DC_1", weekly_velocity=20.0, seasonality_factor=1.0),
             ItemVelocityByNode(item_id="SKU1002", node_id="DC_1", weekly_velocity=18.0, seasonality_factor=1.0),
             ItemVelocityByNode(item_id="SKU1003", node_id="DC_1", weekly_velocity=15.0, seasonality_factor=1.0),
         ]
 
-        # Replenishment
         replenishments = [
             ReplenishmentSchedule(item_id="SKU1001", node_id="STORE_A", next_arrival_date=date(2026, 4, 24), frequency_days=7),
             ReplenishmentSchedule(item_id="SKU1002", node_id="STORE_A", next_arrival_date=date(2026, 4, 25), frequency_days=7),
             ReplenishmentSchedule(item_id="SKU1003", node_id="STORE_A", next_arrival_date=date(2026, 4, 26), frequency_days=7),
-
             ReplenishmentSchedule(item_id="SKU1001", node_id="STORE_B", next_arrival_date=date(2026, 4, 20), frequency_days=4),
             ReplenishmentSchedule(item_id="SKU1002", node_id="STORE_B", next_arrival_date=date(2026, 4, 20), frequency_days=4),
             ReplenishmentSchedule(item_id="SKU1003", node_id="STORE_B", next_arrival_date=date(2026, 4, 21), frequency_days=4),
-
             ReplenishmentSchedule(item_id="SKU1001", node_id="DC_1", next_arrival_date=date(2026, 4, 19), frequency_days=2),
             ReplenishmentSchedule(item_id="SKU1002", node_id="DC_1", next_arrival_date=date(2026, 4, 19), frequency_days=2),
             ReplenishmentSchedule(item_id="SKU1003", node_id="DC_1", next_arrival_date=date(2026, 4, 19), frequency_days=2),
         ]
 
-        # Shipping cost by zone
         shipping_costs = [
             ShippingCostByNodeZone(node_id="STORE_A", destination_zone="TX_LOCAL", service_level="Ground", shipping_cost=8.50, est_transit_days=1),
             ShippingCostByNodeZone(node_id="STORE_B", destination_zone="TX_LOCAL", service_level="Ground", shipping_cost=9.25, est_transit_days=2),
             ShippingCostByNodeZone(node_id="DC_1", destination_zone="TX_LOCAL", service_level="Ground", shipping_cost=11.00, est_transit_days=2),
-
             ShippingCostByNodeZone(node_id="STORE_A", destination_zone="TX_LOCAL", service_level="Express", shipping_cost=14.50, est_transit_days=1),
             ShippingCostByNodeZone(node_id="STORE_B", destination_zone="TX_LOCAL", service_level="Express", shipping_cost=15.25, est_transit_days=1),
             ShippingCostByNodeZone(node_id="DC_1", destination_zone="TX_LOCAL", service_level="Express", shipping_cost=17.00, est_transit_days=1),
         ]
 
-        # Weather
         weather = [
             WeatherRiskByNode(
                 node_id="STORE_A",

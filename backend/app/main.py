@@ -1,8 +1,7 @@
-import os
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from app import config
 from app.graph import evaluate_order
 from app.schemas import (
     ScoreOptionsRequest,
@@ -17,16 +16,19 @@ from app.traces import (
     get_option_evaluations,
 )
 
+
+config.validate_openai_config()
+
 app = FastAPI(title="OMS Profit Review Agent API")
 
-frontend_origin = os.getenv("FRONTEND_ORIGIN")
+frontend_origin = config.FRONTEND_ORIGIN
 
 allowed_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
 
-if frontend_origin:
+if frontend_origin and frontend_origin not in allowed_origins:
     allowed_origins.append(frontend_origin)
 
 app.add_middleware(
@@ -75,10 +77,7 @@ def decision_trace_detail_endpoint(run_id: str):
     return row
 
 
-@app.get(
-    "/option-evaluations/{run_id}",
-    response_model=list[OptionEvaluationTraceResponse],
-)
+@app.get("/option-evaluations/{run_id}", response_model=list[OptionEvaluationTraceResponse])
 def option_evaluations_endpoint(run_id: str):
     rows = get_option_evaluations(run_id)
     if not rows:
