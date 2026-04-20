@@ -1,0 +1,56 @@
+# -----------------
+# OS / editor
+# -----------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# -----------------
+# Python
+# -----------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# virtual environments
+.venv/
+venv/
+env/
+
+# -----------------
+# Backend secrets / local data
+# -----------------
+backend/.env
+backend/data/*.db
+backend/data/*.sqlite
+backend/data/*.sqlite3
+backend/data/chroma_policy_db/
+backend/data/**/index/*
+backend/data/**/parquet/*
+backend/data/**/wal/*
+backend/data/**/shm/*
+
+# optional logs
+*.log
+
+# -----------------
+# Node / frontend
+# -----------------
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+
+# -----------------
+# Build artifacts
+# -----------------
+dist/
+build/
+coverage/
