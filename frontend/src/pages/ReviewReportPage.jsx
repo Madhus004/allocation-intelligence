@@ -100,7 +100,7 @@ export default function ReviewReportPage() {
           <div className="page-eyebrow">Allocation Intelligence</div>
           <h1 className="page-title">Allocation Audit Trail</h1>
           <p className="page-subtitle">
-            Review governed OMS allocation decisions, margin impact, and rationales—with full access to policy guidance and technical trace details.
+            Review governed OMS allocation decisions, margin impact, and rationales — with full access to policy guidance and technical trace details.
           </p>
         </div>
       </section>
