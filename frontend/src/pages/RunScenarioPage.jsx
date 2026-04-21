@@ -1,10 +1,38 @@
 import { useMemo, useState } from "react";
 import { evaluateOrder } from "../api";
 
-const AVAILABLE_SKUS = ["SKU1001", "SKU1002", "SKU1003"];
-const AVAILABLE_NODES = ["STORE_A", "DC_1"];
-const AVAILABLE_SERVICE_LEVELS = ["Standard", "Ground", "2-Day"];
-const AVAILABLE_ZONES = ["TX_LOCAL", "TX_REGIONAL", "CENTRAL"];
+const AVAILABLE_SKUS = [
+  "ITM000120001",
+  "ITM000120002",
+  "ITM000120003",
+  "ITM000120004",
+  "ITM000120005",
+  "ITM000120006",
+  "ITM000120007",
+  "ITM000120008",
+  "ITM000120009",
+  "ITM000120010",
+];
+
+const AVAILABLE_NODES = [
+  "FC0101",
+  "ST0201",
+  "ST0202",
+  "ST0203",
+  "ST0204",
+  "ST0205",
+  "ST0206",
+];
+
+const AVAILABLE_SERVICE_LEVELS = ["Ground", "Express"];
+
+const AVAILABLE_ZONES = [
+  "SOUTH_LOCAL",
+  "SOUTH_REGIONAL",
+  "SOUTHEAST",
+  "MIDWEST",
+  "NORTHEAST",
+];
 
 export default function RunScenarioPage() {
   const initialScenario = createFreshScenario();
@@ -56,7 +84,11 @@ export default function RunScenarioPage() {
       ...formData,
       order_lines: [
         ...formData.order_lines,
-        { item_id: AVAILABLE_SKUS[formData.order_lines.length % AVAILABLE_SKUS.length], qty: 1 },
+        {
+          item_id:
+            AVAILABLE_SKUS[formData.order_lines.length % AVAILABLE_SKUS.length],
+          qty: 1,
+        },
       ],
     };
     setFormData(next);
@@ -299,14 +331,14 @@ export default function RunScenarioPage() {
             </section>
 
             <section className="scenario-block">
-              <div className="label-eyebrow">Candidate Options</div>
+              <div className="label-eyebrow">Candidate Fulfillment Paths</div>
               <div className="options-stack">
                 {formData.options.map((option) => (
                   <div className="option-card" key={option.option_id}>
                     <div className="option-card-header">
                       <div className="option-card-title">{option.option_id}</div>
                       <div className="option-card-subtitle">
-                        Fulfillment assignment by item
+                        Node assignment by order line
                       </div>
                     </div>
 
@@ -322,7 +354,7 @@ export default function RunScenarioPage() {
 
                           <select
                             className="form-input"
-                            value={option.assignments[lineIndex]?.node_id || "STORE_A"}
+                            value={option.assignments[lineIndex]?.node_id || "ST0201"}
                             onChange={(e) =>
                               updateOptionAssignment(
                                 option.option_id,
@@ -553,49 +585,38 @@ function ResultSection({ title, children }) {
 }
 
 function createFreshScenario() {
-  const now = new Date();
-  const promised = new Date(now);
-  promised.setDate(now.getDate() + 2);
-
-  const orderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
-  const originalOptionId = ["OPT_1", "OPT_2", "OPT_3"][
-    Math.floor(Math.random() * 3)
-  ];
-
-  const orderLines = [
-    { item_id: "SKU1001", qty: 1 },
-    { item_id: "SKU1002", qty: 1 },
-  ];
-
   return {
-    order_id: orderId,
-    ship_to_zip: "78701",
-    destination_zone: "TX_LOCAL",
-    service_level: "Standard",
-    allocation_timestamp_local: toLocalDateTimeInputValue(now),
-    promised_delivery_date: promised.toISOString().slice(0, 10),
-    original_option_id: originalOptionId,
-    order_lines: orderLines,
+    order_id: "ORD-W0002001",
+    ship_to_zip: "30339",
+    destination_zone: "SOUTHEAST",
+    service_level: "Ground",
+    allocation_timestamp_local: "2026-04-21T10:30",
+    promised_delivery_date: "2026-04-26",
+    original_option_id: "OPT_1",
+    order_lines: [
+      { item_id: "ITM000120001", qty: 1 },
+      { item_id: "ITM000120003", qty: 1 },
+    ],
     options: [
       {
         option_id: "OPT_1",
         assignments: [
-          { item_id: "SKU1001", qty: 1, node_id: "STORE_A" },
-          { item_id: "SKU1002", qty: 1, node_id: "STORE_A" },
+          { item_id: "ITM000120001", qty: 1, node_id: "ST0201" },
+          { item_id: "ITM000120003", qty: 1, node_id: "ST0201" },
         ],
       },
       {
         option_id: "OPT_2",
         assignments: [
-          { item_id: "SKU1001", qty: 1, node_id: "DC_1" },
-          { item_id: "SKU1002", qty: 1, node_id: "STORE_A" },
+          { item_id: "ITM000120001", qty: 1, node_id: "FC0101" },
+          { item_id: "ITM000120003", qty: 1, node_id: "FC0101" },
         ],
       },
       {
         option_id: "OPT_3",
         assignments: [
-          { item_id: "SKU1001", qty: 1, node_id: "DC_1" },
-          { item_id: "SKU1002", qty: 1, node_id: "DC_1" },
+          { item_id: "ITM000120001", qty: 1, node_id: "ST0201" },
+          { item_id: "ITM000120003", qty: 1, node_id: "FC0101" },
         ],
       },
     ],
@@ -613,7 +634,7 @@ function buildPayloadFromForm(form) {
     assignments: normalizedLines.map((line, idx) => ({
       item_id: line.item_id,
       qty: line.qty,
-      node_id: option.assignments[idx]?.node_id || "STORE_A",
+      node_id: option.assignments[idx]?.node_id || "ST0201",
     })),
   }));
 
@@ -628,11 +649,4 @@ function buildPayloadFromForm(form) {
     order_lines: normalizedLines,
     options: normalizedOptions,
   };
-}
-
-function toLocalDateTimeInputValue(date) {
-  const pad = (n) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-    date.getDate()
-  )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
